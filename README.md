@@ -24,23 +24,23 @@ npm install --save-dev create-test-server
 ## Usage
 
 ```js
-const createTestServer = require('create-test-server');
+const createTestServer = require('create-test-server')
 
-const server = await createTestServer();
-console.log(server.url);
+const server = await createTestServer()
+console.log(server.url)
 // http://localhost:5486
-console.log(server.sslUrl);
+console.log(server.sslUrl)
 // https://localhost:5487
 
 // This is just an Express route
 // You could use any Express middleware too
 server.get('/foo', (req, res) => {
-  res.send('bar');
-});
+  res.send('bar')
+})
 
 // You can return a body directly too
-server.get('/foo', () => 'bar');
-server.get('/foo', 'bar');
+server.get('/foo', () => 'bar')
+server.get('/foo', 'bar')
 
 // server.url + '/foo' and server.sslUrl + '/foo' will respond with 'bar'
 ```
@@ -59,92 +59,92 @@ You can change body parsing behaviour with the [`bodyParser`](#optionsbodyparser
 You can create a separate server per test:
 
 ```js
-import test from 'ava';
-import got from 'got';
-import createTestServer from 'create-test-server';
+import test from 'ava'
+import got from 'got'
+import createTestServer from 'create-test-server'
 
 test(async t => {
-  const server = await createTestServer();
-  server.get('/foo', 'bar');
+  const server = await createTestServer()
+  server.get('/foo', 'bar')
 
-  const response = await got(`${server.url}/foo`);
-  t.is(response.body, 'bar');
+  const response = await got(`${server.url}/foo`)
+  t.is(response.body, 'bar')
 
-  await server.close();
-});
+  await server.close()
+})
 ```
 
 Or share a server across multiple tests:
 
 ```js
-let server;
+let server
 
 test.before(async () => {
-  server = await createTestServer();
-  server.get('/foo', 'bar');
-});
+  server = await createTestServer()
+  server.get('/foo', 'bar')
+})
 
 test(async t => {
-  const response = await got(`${server.url}/foo`);
-  t.is(response.body, 'bar');
-});
+  const response = await got(`${server.url}/foo`)
+  t.is(response.body, 'bar')
+})
 
 test(async t => {
-  const response = await got(`${server.url}/foo`);
-  t.is(response.statusCode, 200);
-});
+  const response = await got(`${server.url}/foo`)
+  t.is(response.statusCode, 200)
+})
 
 test.after(async () => {
-	await server.close();
-});
+  await server.close()
+})
 ```
 
 You can also make properly authenticated SSL requests by setting a common name for the server certificate and validating against the provided CA certificate:
 
 ```js
 test(async t => {
-  const server = await createTestServer({ certificate: 'foobar.com' });
-  server.get('/foo', 'bar');
+  const server = await createTestServer({ certificate: 'foobar.com' })
+  server.get('/foo', 'bar')
 
   const response = await got(`${server.sslUrl}/foo`, {
     ca: server.caCert,
-    headers: { host: 'foobar.com' }
-  });
-  t.is(response.body, 'bar');
+    headers: { host: 'foobar.com' },
+  })
+  t.is(response.body, 'bar')
 
-  await server.close();
-});
+  await server.close()
+})
 ```
 
 You can still make an SSL connection without messing about with certificates if your client supports unauthorised SSL requests:
 
 ```js
 test(async t => {
-  const server = await createTestServer();
-  server.get('/foo', 'bar');
+  const server = await createTestServer()
+  server.get('/foo', 'bar')
 
   const response = await got(`${server.sslUrl}/foo`, {
-    rejectUnauthorized: false
-  });
-  t.is(response.body, 'bar');
+    rejectUnauthorized: false,
+  })
+  t.is(response.body, 'bar')
 
-  await server.close();
-});
+  await server.close()
+})
 ```
 
 You can also easily stop/restart the server. Notice how a new port is used when we listen again:
 
 ```js
-const server = await createTestServer();
-console.log(server.port);
+const server = await createTestServer()
+console.log(server.port)
 // 56711
 
-await server.close();
-console.log(server.port);
+await server.close()
+console.log(server.port)
 // undefined
 
-await server.listen();
-console.log(server.port);
+await server.listen()
+console.log(server.port)
 // 56804
 ```
 
@@ -173,6 +173,13 @@ Default: `undefined`
 Body parser options object to be passed to [`body-parser`](https://github.com/expressjs/body-parser) methods.
 
 If set to `false` then all body parsing middleware will be disabled.
+
+##### options.httpPort
+
+Type: `number`<br>
+Default: `undefined`
+
+Port that the http server will run
 
 ### server
 
